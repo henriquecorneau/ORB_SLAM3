@@ -2059,6 +2059,20 @@ void Tracking::Track()
                     Verbose::PrintMess("IMU. State LOST", Verbose::VERBOSITY_NORMAL);
                 bOK = Relocalization();
             }
+            else if(mState==RECENTLY_LOST)
+            {
+                // The RECENTLY_LOST -> LOST transition only exists in SLAM mode, so
+                // without this branch localization mode keeps matching against the
+                // stale reference keyframe forever and never relocalizes.
+                // Right after losing track (e.g. a blurred frame) the motion model
+                // can still bridge the gap; after that its extrapolation drifts, so
+                // rely on relocalization against the whole map only.
+                bOK = false;
+                if(mbVelocity && mCurrentFrame.mTimeStamp-mTimeStampLost < 0.5)
+                    bOK = TrackWithMotionModel();
+                if(!bOK)
+                    bOK = Relocalization();
+            }
             else
             {
                 if(!mbVO)
