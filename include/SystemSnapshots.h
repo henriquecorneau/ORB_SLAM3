@@ -48,6 +48,12 @@ struct FrameSnapshot
     std::size_t tracked_keypoints{};
 };
 
+struct MapPointSnapshot
+{
+    std::uint64_t map_id{};
+    Eigen::Vector3f position_world;
+};
+
 struct GraphSnapshot
 {
     std::uint64_t revision{};

@@ -149,6 +149,10 @@ public:
 
     FrameSnapshot GetLastFrameSnapshot() const;
     GraphSnapshot GetGraphSnapshot();
+    // Value copies of every map in the atlas, not only the active one (e.g. to
+    // plot where localization happened after a run).
+    std::vector<KeyframeSnapshot> GetAllKeyframeSnapshots();
+    std::vector<MapPointSnapshot> GetAllMapPointSnapshots();
 
     // Reset the system (clear Atlas or the active map)
     void Reset();

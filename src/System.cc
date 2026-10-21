@@ -824,6 +824,38 @@ GraphSnapshot System::GetGraphSnapshot()
     return GraphSnapshot{};
 }
 
+std::vector<KeyframeSnapshot> System::GetAllKeyframeSnapshots()
+{
+    std::vector<KeyframeSnapshot> keyframes;
+    for(Map* map : mpAtlas->GetAllMaps())
+    {
+        unique_lock<mutex> map_update_lock(map->mMutexMapUpdate);
+        if(map->IsBad())
+            continue;
+        const MapGraphSnapshot map_snapshot = map->GetGraphSnapshotData();
+        keyframes.insert(keyframes.end(), map_snapshot.keyframes.begin(), map_snapshot.keyframes.end());
+    }
+    return keyframes;
+}
+
+std::vector<MapPointSnapshot> System::GetAllMapPointSnapshots()
+{
+    std::vector<MapPointSnapshot> points;
+    for(Map* map : mpAtlas->GetAllMaps())
+    {
+        unique_lock<mutex> map_update_lock(map->mMutexMapUpdate);
+        if(map->IsBad())
+            continue;
+        const std::uint64_t map_id = map->GetId();
+        for(MapPoint* point : map->GetAllMapPoints())
+        {
+            if(point && !point->isBad())
+                points.push_back({map_id, point->GetWorldPos()});
+        }
+    }
+    return points;
+}
+
 void System::BeginSnapshotEpoch(SnapshotGraphState::EpochKind kind)
 {
     unique_lock<mutex> snapshot_lock(mMutexSnapshot);
