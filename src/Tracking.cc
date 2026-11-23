@@ -2305,8 +2305,12 @@ void Tracking::Track()
             }
         }
 
-        // Reset if the camera get lost soon after initialization
-        if(mState==LOST)
+        // Reset if the camera get lost soon after initialization. Not in localization
+        // mode, which starts LOST: a new map would replace the loaded one as the active
+        // map, and on the next failed frame the reset of that small map waits for the
+        // stopped Local Mapping forever (tracking and the viewer freeze, SIGINT is
+        // ignored). Stay LOST and relocalize on the next frame instead.
+        if(mState==LOST && !mbOnlyTracking)
         {
             if(pCurrentMap->KeyFramesInMap()<=10)
             {

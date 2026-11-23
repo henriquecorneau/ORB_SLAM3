@@ -261,6 +261,10 @@ void LocalMapping::Run()
             // Safe area to stop
             while(isStopped() && !CheckFinish())
             {
+                // Serve reset requests while stopped (localization mode):
+                // RequestReset()/RequestResetActiveMap() wait for this flag to be
+                // cleared, e.g. from the viewer's Reset button, and would block forever.
+                ResetIfRequested();
                 usleep(3000);
             }
             if(CheckFinish())
